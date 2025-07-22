@@ -9,6 +9,9 @@ load_dotenv()
 model = "gemini-2.0-flash-001"
 
 def main():
+  verbose = "--verbose" in sys.argv #
+  if verbose: print(f"sys args: {sys.argv}") #
+  
   args = []
   for arg in sys.argv[1:]:
     if not arg.startswith("--"):
@@ -31,7 +34,8 @@ def main():
     model=model, contents=messages
   )
   
-  print(f"User prompt: {prompt}\nPrompt tokens: {response.usage_metadata.prompt_token_count} \nResponse tokens: {response.usage_metadata.candidates_token_count}")
+  if verbose:
+    print(f"User prompt: {prompt}\nPrompt tokens: {response.usage_metadata.prompt_token_count} \nResponse tokens: {response.usage_metadata.candidates_token_count}")
 
   print("Answer:")
   print(response.text)
