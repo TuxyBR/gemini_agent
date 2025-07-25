@@ -49,7 +49,7 @@ schema_run_python_file = types.FunctionDeclaration(
       ),
       "args[]":
       types.Schema(
-        type=types.Type.LIST,
+        type=types.Type.ARRAY,
         description=
         "A list of arguments run the python file with. If not provided, runs the file without arguments.",
       ),
