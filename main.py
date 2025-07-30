@@ -1,9 +1,10 @@
+from genericpath import exists
 import os
 import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types  # type: ignore
-from call_functions import available_functions
+from call_functions import available_functions, call_function
 
 load_dotenv()
 
@@ -68,7 +69,8 @@ def generate_prompt(client, prompt, verbose):
     return response.text
 
   for function_call_part in response.function_calls:
-    print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+    if verbose: print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+    call_function(function_call_part, verbose if verbose else False)
 
 
 if __name__ == "__main__":
