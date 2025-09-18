@@ -24,13 +24,14 @@ All paths you provide should be relative to the working directory. You do not ne
 
 
 def main():
-  verbose = "--verbose" in sys.argv  #
+  verbose = "--verbose" in sys.argv or "-V" in sys.argv  #
   if verbose:
     print(f"sys args: {sys.argv}")  #
 
   args = []
   for arg in sys.argv[1:]:
-    if not arg.startswith("--"):
+    # print(f'current arg: {arg}, status: {not (arg.startswith("--") or arg.startswith("-"))}')
+    if not (arg.startswith("--") or arg.startswith("-")):
       args.append(arg)
 
   if not args:
@@ -39,11 +40,10 @@ def main():
 
   api_key = os.environ.get("GEMINI_API_KEY")
   client = genai.Client(api_key=api_key)
-  
+
   prompt = args[0]
 
   generate_prompt(client, prompt, verbose)
-
 
 
 def generate_prompt(client, prompt, verbose):
@@ -54,23 +54,29 @@ def generate_prompt(client, prompt, verbose):
   response = client.models.generate_content(
     model=model,
     contents=messages,
-    config=types.GenerateContentConfig(
-      tools=[available_functions], system_instruction=system_prompt
-    ),
+    config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),
   )
-  
+
   if verbose:
     print(
       f"User prompt: {prompt}\nPrompt tokens: {response.usage_metadata.prompt_token_count} \nResponse tokens: {response.usage_metadata.candidates_token_count}"
     )
-    
+
   if not response.function_calls:
-    print (response.text)
+    print(response.text)
     return response.text
 
+  function_responses = []
   for function_call_part in response.function_calls:
-    if verbose: print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-    call_function(function_call_part, verbose if verbose else False)
+    function_call_result = call_function(function_call_part, verbose)
+    if (not function_call_result.parts or not function_call_result.parts[0].function_response):
+      raise Exception("empty function call result")
+    if verbose:
+      print(f"-> {function_call_result.parts[0].function_response.response}")
+    function_responses.append(function_call_result.parts[0])
+
+  if not function_responses:
+    raise Exception("no function responses generated, exiting.")
 
 
 if __name__ == "__main__":
