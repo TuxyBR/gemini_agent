@@ -30,6 +30,7 @@ schema_get_file_content = types.FunctionDeclaration(
         "The path to read from a file, relative to the working directory. If not provided, returns an error.",
       ),
     },
+    required=["file_path"],
   ),
 )
 
