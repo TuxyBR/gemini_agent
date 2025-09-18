@@ -61,6 +61,7 @@ def generate_prompt(client, prompt, verbose):
     print(
       f"User prompt: {prompt}\nPrompt tokens: {response.usage_metadata.prompt_token_count} \nResponse tokens: {response.usage_metadata.candidates_token_count}"
     )
+    print(f"there are the candidates: {response.candidates}")
 
   if not response.function_calls:
     print(response.text)
